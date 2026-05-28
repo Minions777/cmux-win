@@ -1,0 +1,182 @@
+/* SSH Dialog Styles */
+.ssh-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.ssh-dialog {
+  background: var(--color-surface0);
+  border: 1px solid var(--color-overlay0);
+  border-radius: 12px;
+  padding: 24px;
+  width: 400px;
+  max-width: 90vw;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.ssh-dialog h2 {
+  margin: 0 0 20px 0;
+  color: var(--color-text);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.ssh-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ssh-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--color-subtext1);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.ssh-form input,
+.ssh-form select {
+  background: var(--color-mantle);
+  border: 1px solid var(--color-overlay0);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: var(--color-text);
+  font-size: 14px;
+  font-family: var(--font-mono);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.ssh-form input:focus,
+.ssh-form select:focus {
+  border-color: var(--color-blue);
+}
+
+.ssh-form input::placeholder {
+  color: var(--color-overlay1);
+}
+
+.ssh-error {
+  background: rgba(243, 139, 168, 0.1);
+  border: 1px solid var(--color-red);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: var(--color-red);
+  font-size: 13px;
+}
+
+.ssh-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--color-blue);
+  color: var(--color-crust);
+}
+
+.btn-primary:hover {
+  background: var(--color-lavender);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: var(--color-surface1);
+  color: var(--color-text);
+  border: 1px solid var(--color-overlay0);
+}
+
+.btn-secondary:hover {
+  background: var(--color-surface2);
+}
+
+/* Git Status Styles */
+.git-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  padding: 4px 8px;
+  background: var(--color-mantle);
+  border-radius: 4px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.git-branch {
+  font-weight: 600;
+}
+
+.git-ahead,
+.git-behind,
+.git-staged,
+.git-modified,
+.git-untracked,
+.git-conflicted,
+.git-last-commit,
+.git-tags {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.git-ahead {
+  color: var(--color-blue);
+}
+
+.git-behind {
+  color: var(--color-red);
+}
+
+.git-staged {
+  color: var(--color-green);
+}
+
+.git-modified {
+  color: var(--color-yellow);
+}
+
+.git-untracked {
+  color: var(--color-subtext0);
+}
+
+.git-conflicted {
+  color: var(--color-red);
+}
+
+.git-last-commit {
+  color: var(--color-overlay1);
+}
+
+.git-tags {
+  color: var(--color-mauve);
+}

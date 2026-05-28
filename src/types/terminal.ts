@@ -93,3 +93,80 @@ export interface TerminalConfig {
   cursorBlink: boolean;
   scrollback: number;
 }
+
+// ============================================================
+// Git Types
+// ============================================================
+
+export interface GitStatus {
+  branch: string;
+  upstream: string | null;
+  state: RepoState;
+  ahead: number;
+  behind: number;
+  staged: number;
+  modified: number;
+  untracked: number;
+  conflicted: number;
+  lastCommit: CommitInfo | null;
+  remoteUrl: string | null;
+  tags: string[];
+}
+
+export type RepoState = 'clean' | 'dirty' | 'ahead' | 'behind' | 'aheadAndBehind' | 'conflicted' | 'unknown';
+
+export interface CommitInfo {
+  hash: string;
+  shortHash: string;
+  message: string;
+  author: string;
+  timestamp: number;
+}
+
+export interface BranchInfo {
+  name: string;
+  isCurrent: boolean;
+  upstream: string | null;
+}
+
+// ============================================================
+// SSH Types
+// ============================================================
+
+export interface SshConfig {
+  host: string;
+  port: number;
+  username: string;
+  authMethod: SshAuth;
+}
+
+export type SshAuth =
+  | { Password: string }
+  | { Key: { path: string; passphrase: string | null } }
+  | 'Agent';
+
+export interface SshSession {
+  id: string;
+  config: SshConfig;
+  isConnected: boolean;
+}
+
+// ============================================================
+// Notification Types
+// ============================================================
+
+export interface Notification {
+  title: string;
+  body: string;
+  icon: string | null;
+  urgency: 'low' | 'normal' | 'critical';
+  terminalId: string;
+  timestamp: number;
+}
+
+export interface NotificationConfig {
+  enabled: boolean;
+  soundEnabled: boolean;
+  minDurationSecs: number;
+  watchPatterns: string[];
+}
