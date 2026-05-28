@@ -1,6 +1,6 @@
 [package]
 name = "cmux-win"
-version = "0.1.0"
+version = "0.2.0"
 description = "A Windows terminal emulator inspired by cmux"
 authors = ["cmux-win contributors"]
 edition = "2021"
@@ -17,6 +17,7 @@ tauri-build = { version = "2", features = [] }
 # Tauri
 tauri = { version = "2", features = ["tray-icon"] }
 tauri-plugin-shell = "2"
+tauri-plugin-notification = "2"
 
 # Serialization
 serde = { version = "1", features = ["derive"] }
@@ -37,6 +38,19 @@ parking_lot = "0.12"
 # Logging
 log = "0.4"
 env_logger = "0.11"
+
+# Git integration
+git2 = "0.19"
+
+# SSH remote (pure Rust)
+russh = "0.50"
+russh-keys = "0.50"
+
+# Notification
+dirs = "6"
+
+# Regex for command completion detection
+regex = "1"
 
 # Windows-specific
 [target.'cfg(windows)'.dependencies]
