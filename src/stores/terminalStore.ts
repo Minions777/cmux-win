@@ -1,130 +1,165 @@
 import { create } from 'zustand';
-import type { Tab, TerminalConfig, Theme } from '../types/terminal';
+import type {
+  Tab,
+  TerminalConfig,
+  Theme,
+  GitStatus,
+  Notification,
+  NotificationConfig,
+  SshSession,
+} from '../types/terminal';
 
-// ============================================================
-// Default Theme (One Dark inspired, like cmux)
-// ============================================================
-
+// Default Catppuccin Mocha theme
 const defaultTheme: Theme = {
-  name: 'One Dark',
-  background: '#282c34',
-  foreground: '#abb2bf',
-  cursor: '#528bff',
-  selection: '#3e4451',
-  black: '#282c34',
-  red: '#e06c75',
-  green: '#98c379',
-  yellow: '#e5c07b',
-  blue: '#61afef',
-  magenta: '#c678dd',
-  cyan: '#56b6c2',
-  white: '#abb2bf',
-  brightBlack: '#5c6370',
-  brightRed: '#e06c75',
-  brightGreen: '#98c379',
-  brightYellow: '#e5c07b',
-  brightBlue: '#61afef',
-  brightMagenta: '#c678dd',
-  brightCyan: '#56b6c2',
-  brightWhite: '#ffffff',
+  name: 'Catppuccin Mocha',
+  background: '#1e1e2e',
+  foreground: '#cdd6f4',
+  cursor: '#f5e0dc',
+  selection: '#45475a',
+  black: '#45475a',
+  red: '#f38ba8',
+  green: '#a6e3a1',
+  yellow: '#f9e2af',
+  blue: '#89b4fa',
+  magenta: '#f5c2e7',
+  cyan: '#94e2d5',
+  white: '#bac2de',
+  brightBlack: '#585b70',
+  brightRed: '#f38ba8',
+  brightGreen: '#a6e3a1',
+  brightYellow: '#f9e2af',
+  brightBlue: '#89b4fa',
+  brightMagenta: '#f5c2e7',
+  brightCyan: '#94e2d5',
+  brightWhite: '#a6adc8',
 };
-
-const defaultConfig: TerminalConfig = {
-  fontSize: 14,
-  fontFamily: 'Cascadia Code, Consolas, monospace',
-  theme: defaultTheme,
-  cursorStyle: 'block',
-  cursorBlink: true,
-  scrollback: 10000,
-};
-
-// ============================================================
-// Store State & Actions
-// ============================================================
 
 interface TerminalStore {
-  // State
+  // Tabs
   tabs: Tab[];
   activeTabId: string | null;
-  config: TerminalConfig;
-  sidebarVisible: boolean;
-  browserVisible: boolean;
-  browserUrl: string;
-  notificationMessage: string | null;
-
-  // Actions
   addTab: (tab: Tab) => void;
   removeTab: (id: string) => void;
   setActiveTab: (id: string) => void;
   updateTab: (id: string, updates: Partial<Tab>) => void;
-  updateTerminalState: (id: string, updates: Partial<Tab['terminalState']>) => void;
-  setConfig: (config: Partial<TerminalConfig>) => void;
+
+  // Config
+  config: TerminalConfig;
+  updateConfig: (updates: Partial<TerminalConfig>) => void;
+
+  // Git status per terminal
+  gitStatuses: Record<string, GitStatus>;
+  updateGitStatus: (terminalId: string, status: GitStatus) => void;
+
+  // Notifications
+  notifications: Notification[];
+  notificationConfig: NotificationConfig;
+  addNotification: (notification: Notification) => void;
+  clearNotifications: () => void;
+  updateNotificationConfig: (config: Partial<NotificationConfig>) => void;
+
+  // SSH Sessions
+  sshSessions: Record<string, SshSession>;
+  addSshSession: (session: SshSession) => void;
+  removeSshSession: (id: string) => void;
+  updateSshSession: (id: string, updates: Partial<SshSession>) => void;
+
+  // Sidebar
+  isSidebarOpen: boolean;
   toggleSidebar: () => void;
-  toggleBrowser: () => void;
-  setBrowserUrl: (url: string) => void;
-  showNotification: (message: string) => void;
-  clearNotification: () => void;
+
+  // Notification ring
+  activeNotificationTerminalId: string | null;
+  setActiveNotification: (terminalId: string | null) => void;
 }
 
-// ============================================================
-// Create Store
-// ============================================================
-
 export const useTerminalStore = create<TerminalStore>((set) => ({
+  // Tabs
   tabs: [],
   activeTabId: null,
-  config: defaultConfig,
-  sidebarVisible: true,
-  browserVisible: false,
-  browserUrl: 'about:blank',
-  notificationMessage: null,
-
   addTab: (tab) =>
     set((state) => ({
       tabs: [...state.tabs, tab],
       activeTabId: tab.id,
     })),
-
   removeTab: (id) =>
-    set((state) => {
-      const newTabs = state.tabs.filter((t) => t.id !== id);
-      const newActiveId =
+    set((state) => ({
+      tabs: state.tabs.filter((t) => t.id !== id),
+      activeTabId:
         state.activeTabId === id
-          ? newTabs.length > 0
-            ? newTabs[newTabs.length - 1].id
-            : null
-          : state.activeTabId;
-      return { tabs: newTabs, activeTabId: newActiveId };
-    }),
-
+          ? state.tabs.find((t) => t.id !== id)?.id || null
+          : state.activeTabId,
+    })),
   setActiveTab: (id) => set({ activeTabId: id }),
-
   updateTab: (id, updates) =>
     set((state) => ({
       tabs: state.tabs.map((t) => (t.id === id ? { ...t, ...updates } : t)),
     })),
 
-  updateTerminalState: (id, updates) =>
+  // Config
+  config: {
+    fontSize: 14,
+    fontFamily: 'Cascadia Code, Consolas, monospace',
+    theme: defaultTheme,
+    cursorStyle: 'block',
+    cursorBlink: true,
+    scrollback: 10000,
+  },
+  updateConfig: (updates) =>
     set((state) => ({
-      tabs: state.tabs.map((t) =>
-        t.id === id
-          ? { ...t, terminalState: { ...t.terminalState, ...updates } }
-          : t,
-      ),
+      config: { ...state.config, ...updates },
     })),
 
-  setConfig: (config) =>
+  // Git
+  gitStatuses: {},
+  updateGitStatus: (terminalId, status) =>
     set((state) => ({
-      config: { ...state.config, ...config },
+      gitStatuses: { ...state.gitStatuses, [terminalId]: status },
     })),
 
-  toggleSidebar: () => set((state) => ({ sidebarVisible: !state.sidebarVisible })),
+  // Notifications
+  notifications: [],
+  notificationConfig: {
+    enabled: true,
+    soundEnabled: true,
+    minDurationSecs: 5,
+    watchPatterns: ['\\$\\s*$', '%\\s*$', '>\\s*$', 'PS [^>]*>\\s*$'],
+  },
+  addNotification: (notification) =>
+    set((state) => ({
+      notifications: [...state.notifications, notification],
+    })),
+  clearNotifications: () => set({ notifications: [] }),
+  updateNotificationConfig: (config) =>
+    set((state) => ({
+      notificationConfig: { ...state.notificationConfig, ...config },
+    })),
 
-  toggleBrowser: () => set((state) => ({ browserVisible: !state.browserVisible })),
+  // SSH
+  sshSessions: {},
+  addSshSession: (session) =>
+    set((state) => ({
+      sshSessions: { ...state.sshSessions, [session.id]: session },
+    })),
+  removeSshSession: (id) =>
+    set((state) => {
+      const { [id]: _, ...rest } = state.sshSessions;
+      return { sshSessions: rest };
+    }),
+  updateSshSession: (id, updates) =>
+    set((state) => ({
+      sshSessions: {
+        ...state.sshSessions,
+        [id]: { ...state.sshSessions[id], ...updates },
+      },
+    })),
 
-  setBrowserUrl: (url) => set({ browserUrl: url }),
+  // Sidebar
+  isSidebarOpen: true,
+  toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
 
-  showNotification: (message) => set({ notificationMessage: message }),
-
-  clearNotification: () => set({ notificationMessage: null }),
+  // Notification ring
+  activeNotificationTerminalId: null,
+  setActiveNotification: (terminalId) =>
+    set({ activeNotificationTerminalId: terminalId }),
 }));
